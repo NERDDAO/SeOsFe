@@ -20,7 +20,7 @@ export const useDeployedContractInfo = ({ contractName }: { contractName: string
     const getDeployedContractInfo = async () => {
       let ContractData;
       try {
-        ContractData = require("~~/generated/hardhat_contracts.json");
+        ContractData = require("~~/contracts/hardhat_contracts.json");
         const contractsAtChain = ContractData[chain?.id as keyof typeof ContractData];
         const contractsData = contractsAtChain?.[0]?.contracts;
         const deployedContractData = contractsData?.[contractName as keyof typeof contractsData];

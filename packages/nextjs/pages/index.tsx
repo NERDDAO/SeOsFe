@@ -1,57 +1,89 @@
-import type { NextPage } from "next";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  makeStyles,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  Link,
+  Popover,
+  Typography,
+  TableBody,
+  Button,
+} from "@material-ui/core";
+import { useRouter } from "next/router";
 import Head from "next/head";
-import { BugAntIcon, SparklesIcon } from "@heroicons/react/24/outline";
-import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
+import ethers from "ethers";
+import { useScaffoldContractRead } from "~~/hooks/scaffold-eth/useScaffoldContractRead";
 
-const Home: NextPage = () => {
+const useStyles = makeStyles(theme => ({
+  card: {
+    maxWidth: 345,
+    margin: "10px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100vh",
+  },
+  media: {
+    height: 0,
+    paddingTop: "56.25%", // 16:9
+  },
+  expand: {
+    transform: "rotate(0deg)",
+    marginLeft: "auto",
+    transition: theme.transitions.create("transform", {
+      duration: theme.transitions.duration.shortest,
+    }),
+  },
+  expandOpen: {
+    transform: "rotate(180deg)",
+  },
+  link: {
+    textDecoration: "none",
+    color: "inherit",
+  },
+}));
+
+const Home = () => {
+  const classes = useStyles();
+  const router = useRouter();
+  const contractName = "FarmMainRegularMinStakeABI";
+  const functionName = "setups";
+  let data: any;
+  const contract = useScaffoldContractRead(contractName, functionName);
+  if (contract.data) {
+    data = contract.data;
+  }
+  const handleClick = (setupId: string) => {
+    router.push(`/setup/${setupId}`);
+  };
+
   return (
     <>
       <Head>
         <title>Scaffold-eth App</title>
         <meta name="description" content="Created with 🏗 scaffold-eth" />
       </Head>
-
-      <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center mb-8">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">scaffold-eth 2</span>
-          </h1>
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold">packages/nextjs/pages/index.tsx</code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract <code className="italic bg-base-300 text-base font-bold">YourContract.sol</code> in{" "}
-            <code className="italic bg-base-300 text-base font-bold">packages/hardhat/contracts</code>
-          </p>
-        </div>
-
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contract
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <SparklesIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Experiment with{" "}
-                <Link href="/example-ui" passHref className="link">
-                  Example UI
-                </Link>{" "}
-                to build your own UI.
-              </p>
-            </div>
-          </div>
-        </div>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center" }}>
+        {data?.map((setup: any, index: any) => (
+          <Card key={index} className={classes.card} onClick={() => handleClick(index)}>
+            <CardHeader title={`pid: ${index}`} />
+            <CardContent>
+              <Typography variant="body2" color="textSecondary" component="p">
+                <strong>rewardPerBlock:</strong> {setup.rewardPerBlock?.toString()}
+              </Typography>
+              <Typography variant="body2" color="textSecondary" component="p">
+                <strong>endBlock:</strong> {setup.endBlock?.toNumber()}
+              </Typography>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </>
   );
