@@ -31,12 +31,32 @@ const AddLiquidityForm = () => {
 						name: "setupData",
 						type: "tuple",
 						components: [
-							{ name: "setupIndex", type: "uint256", value: setupIndex },
-							{ name: "amount0", type: "uint256", value: amount0 },
-							{ name: "amount1", type: "uint256", value: amount1 },
+							{
+								name: "setupIndex",
+								type: "uint256",
+								value: new BigNumber(setupIndex),
+							},
+							{
+								name: "amount0",
+								type: "uint256",
+								value: new BigNumber(amount0),
+							},
+							{
+								name: "amount1",
+								type: "uint256",
+								value: new BigNumber(amount1),
+							},
 							{ name: "positionOwner", type: "address", value: positionOwner },
-							{ name: "amount0Min", type: "uint256", value: amount0Min },
-							{ name: "amount1Min", type: "uint256", value: amount1Min },
+							{
+								name: "amount0Min",
+								type: "uint256",
+								value: new BigNumber(amount0Min),
+							},
+							{
+								name: "amount1Min",
+								type: "uint256",
+								value: new BigNumber(amount1Min),
+							},
 						],
 					},
 				],

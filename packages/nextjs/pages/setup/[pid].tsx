@@ -49,9 +49,10 @@ interface SetupCardProps {
   account: string;
   web3: any;
   farmingContractAddress: string;
+  children?: React.ReactNode;
 }
 
-const SetupCard: React.FC<SetupCardProps> = ({ account, web3, farmingContractAddress }) => {
+const SetupCard: React.FC<SetupCardProps> = ({ account, web3, farmingContractAddress, children }) => {
   const classes = useStyles();
   const router = useRouter();
   const contractName = "FarmMainRegularMinStakeABI";
@@ -90,16 +91,21 @@ const SetupCard: React.FC<SetupCardProps> = ({ account, web3, farmingContractAdd
               <TableBody>
                 {Object.entries(variableNames).map(([key, value]) => (
                   <TableRow key={key}>
-                    <TableCell className={classes.tableCell}>{value}</TableCell>
-                    <TableCell className={classes.tableCell}>{data[key]}</TableCell>
+                    <TableCell className={classes.tableCell} component="th" scope="row">
+                      {value}
+                    </TableCell>
+                    <TableCell className={classes.tableCell}>{JSON.stringify(data[key])}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
         )}
-        <AddLiquidityForm />
+        <Typography variant="body2" component="p">
+          {children}
+        </Typography>
       </CardContent>
+      <AddLiquidityForm />
     </Card>
   );
 };
