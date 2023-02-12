@@ -12,6 +12,7 @@
     "check-types": "tsc --noEmit --incremental"
   },
   "dependencies": {
+    "@ethereansos/interfaces-core": "^0.4.160",
     "@ethersproject/networks": "^5.7.1",
     "@ethersproject/web": "^5.7.1",
     "@heroicons/react": "^2.0.11",
