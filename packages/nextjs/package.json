@@ -12,13 +12,11 @@
     "check-types": "tsc --noEmit --incremental"
   },
   "dependencies": {
-    "@ethereansos/interfaces-core": "^0.4.160",
     "@ethersproject/networks": "^5.7.1",
     "@ethersproject/web": "^5.7.1",
     "@heroicons/react": "^2.0.11",
     "@material-ui/core": "^4.12.4",
     "@rainbow-me/rainbowkit": "^0.8.1",
-    "@rsksmart/web3-events": "^0.1.0-dev.7",
     "@uniswap/sdk": "^3.0.3",
     "@walletconnect/core": "^2.4.0",
     "@walletconnect/sign-client": "^2.4.0",
