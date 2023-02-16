@@ -19,6 +19,9 @@ import Head from "next/head";
 import React, { useState } from "react";
 import ethers from "ethers";
 import { useScaffoldContractRead } from "~~/hooks/scaffold-eth/useScaffoldContractRead";
+import { execute } from "../.graphclient";
+import { gql } from "graphql-tag";
+import { useAccount } from "wagmi";
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -53,6 +56,8 @@ const useStyles = makeStyles(theme => ({
 const Home = () => {
   const classes = useStyles();
   const router = useRouter();
+  const { address, isConnected } = useAccount();
+  console.log("account", address, isConnected);
   const contractName = "FarmMainRegularMinStakeABI";
   const functionName = "setups";
   let data: any;
@@ -60,10 +65,39 @@ const Home = () => {
   if (contract.data) {
     data = contract.data;
   }
+
+  const myQuery = gql`
+    query ExampleQuery {
+      setupTokens(first: 5) {
+        id
+        mainToken
+        involvedToken
+        blockNumber
+      }
+      rewardTokens(first: 5) {
+        id
+        rewardTokenAddress
+        blockNumber
+        blockTimestamp
+      }
+      users(first: 5) {
+        positions {
+          id
+        }
+      }
+    }
+  `;
+
+  async function main() {
+    const result = await execute(myQuery, {});
+    console.log("QueryResult", result);
+  }
+
+  main();
   const handleClick = (setupId: string) => {
     router.push(`/setup/${setupId}`);
   };
-
+  console.log("data", data);
   return (
     <>
       <Head>

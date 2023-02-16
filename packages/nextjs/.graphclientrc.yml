@@ -1,0 +1,6 @@
+# .graphclientrc.yml
+sources:
+  - name: Contract
+    handler:
+      graphql:
+        endpoint: https://api.thegraph.com/subgraphs/name/ataxia123/osgraph

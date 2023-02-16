@@ -1,0 +1,19 @@
+query ExampleQuery {
+  setupTokens(first: 5) {
+    id
+    mainToken
+    involvedToken
+    blockNumber
+  }
+  rewardTokens(first: 5) {
+    id
+    rewardTokenAddress
+    blockNumber
+    blockTimestamp
+  }
+  users(where: {id: "msg.sender"}) {
+    positions {
+      id
+    }
+  }
+}
