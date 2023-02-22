@@ -17,7 +17,6 @@ import {
 import { useRouter } from "next/router";
 import Head from "next/head";
 import React, { useState } from "react";
-import ethers from "ethers";
 import { useScaffoldContractRead } from "~~/hooks/scaffold-eth/useScaffoldContractRead";
 import { execute } from "../.graphclient";
 import { gql } from "graphql-tag";
