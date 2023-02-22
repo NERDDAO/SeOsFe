@@ -63,6 +63,7 @@ const Home = () => {
   const handleClick = (setupId: string) => {
     router.push(`/setup/${setupId}`);
   };
+  console.log(data);
 
   return (
     <>

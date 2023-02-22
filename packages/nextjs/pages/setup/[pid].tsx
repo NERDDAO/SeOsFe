@@ -17,6 +17,12 @@ import { useRouter } from "next/router";
 import { useScaffoldContractRead } from "~~/hooks/scaffold-eth";
 import AddLiquidityForm from "~~/components/AddLiquidityForm";
 
+//TODO
+//Pass in Addresses depending on which farm is selected into AddLiquidityForm
+//Calculate the Amount1min and Amount0min and pass those into AddLiquidityForm just like amount1 and amount0
+//Pass the PID depending on the farm selected into AddLiquidityForm
+//Pass the position ID into AddLiquidityForm
+
 const useStyles = makeStyles(theme => ({
   card: {
     maxWidth: 500,
