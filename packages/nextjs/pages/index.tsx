@@ -55,6 +55,7 @@ const Home = () => {
   }, [address, tempSlice]);
 
   const handleClick = (setupId: string) => {
+    tempSlice.setPID(setupId);
     router.push(`/setup/${setupId}`);
   };
 

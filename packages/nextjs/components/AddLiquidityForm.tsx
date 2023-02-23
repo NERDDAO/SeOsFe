@@ -6,8 +6,10 @@ import { fetchPool } from "~~/utils/scaffold-eth/fetchPool";
 import { useAccount, useProvider } from "wagmi";
 import { Contract } from "ethers";
 import { useAccountBalance } from "~~/hooks/scaffold-eth/useAccountBalance";
+import { useAppStore } from "~~/services/store/store";
 
 const AddLiquidityForm = () => {
+	const { tempSlice } = useAppStore();
 	const [positionId, setPositionId] = useState("");
 	const [setupIndex, setSetupIndex] = useState("");
 	const [amount0, setAmount0] = useState("");
@@ -15,6 +17,8 @@ const AddLiquidityForm = () => {
 	const [positionOwner, setPositionOwner] = useState("");
 	const [amount0Min, setAmount0Min] = useState("");
 	const [amount1Min, setAmount1Min] = useState("");
+	const [percentageSetting, setPercentageSetting] = useState(";"); // default to 1%
+
 	const [error, setError] = useState("");
 
 	const contractName = "FarmMainRegularMinStakeABI";
@@ -77,7 +81,7 @@ const AddLiquidityForm = () => {
 					{
 						name: "setupIndex",
 						type: "uint256",
-						value: new BigNumber(setupIndex),
+						value: new BigNumber(tempSlice.pid),
 					},
 					{
 						name: "amount0",
@@ -105,20 +109,35 @@ const AddLiquidityForm = () => {
 		]
 	);
 
+	useEffect(() => {
+		const calculateMinAmounts = () => {
+			const amount0Value = parseFloat(amount0);
+			const amount1Value = parseFloat(amount1);
+			const percentage = parseFloat(percentageSetting);
+
+			if (isNaN(amount0Value) || isNaN(amount1Value) || isNaN(percentage)) {
+				// Handle invalid input values
+				return;
+			}
+
+			const amount0MinValue = amount0Value - amount0Value * percentage;
+			const amount1MinValue = amount1Value - amount1Value * percentage;
+
+			// Set the minimum amount values
+			setAmount0Min(amount0MinValue.toFixed(4));
+			setAmount1Min(amount1MinValue.toFixed(4));
+		};
+
+		calculateMinAmounts();
+	}, [amount0, amount1, percentageSetting]);
+
 	return (
 		<Grid container direction="column" alignItems="center">
 			<Typography variant="h6" style={{ marginTop: "20px" }}>
 				Add Liquidity
 			</Typography>
 			<form onSubmit={writeAsync}>
-				<TextField
-					label="Position Id"
-					variant="outlined"
-					type="number"
-					value={positionId}
-					onChange={(e) => setPositionId(e.target.value)}
-					style={{ margin: "20px 0" }}
-				/>
+				<div> tempSlice.pid: {tempSlice.pid} </div>
 				<TextField
 					label="Setup Index"
 					variant="outlined"
@@ -132,7 +151,9 @@ const AddLiquidityForm = () => {
 					variant="outlined"
 					type="number"
 					value={amount0}
-					onChange={(e) => setAmount0(e.target.value)}
+					onChange={(e) => {
+						setAmount0(e.target.value);
+					}}
 					style={{ margin: "20px 0" }}
 				/>
 				<TextField
@@ -140,7 +161,9 @@ const AddLiquidityForm = () => {
 					variant="outlined"
 					type="number"
 					value={amount1}
-					onChange={(e) => setAmount1(e.target.value)}
+					onChange={(e) => {
+						setAmount1(e.target.value);
+					}}
 					style={{ margin: "20px 0" }}
 				/>
 				<TextField
@@ -151,6 +174,34 @@ const AddLiquidityForm = () => {
 					onChange={(e) => setPositionOwner(e.target.value)}
 					style={{ margin: "20px 0" }}
 				/>
+				<div style={{ margin: "20px 0" }}>
+					<Typography variant="subtitle1">
+						Choose a minimum amount setting:
+					</Typography>
+					<div>
+						<Button
+							variant="contained"
+							color={percentageSetting === "0.01" ? "primary" : "default"}
+							onClick={() => setPercentageSetting("0.01")}
+						>
+							0.1%
+						</Button>
+						<Button
+							variant="contained"
+							color={percentageSetting === "0.05" ? "primary" : "default"}
+							onClick={() => setPercentageSetting("0.05")}
+						>
+							1%
+						</Button>
+						<Button
+							variant="contained"
+							color={percentageSetting === "0.1" ? "primary" : "default"}
+							onClick={() => setPercentageSetting("0.1")}
+						>
+							5%
+						</Button>
+					</div>
+				</div>
 				<TextField
 					label="Amount 0 Minimum"
 					variant="outlined"
@@ -158,6 +209,7 @@ const AddLiquidityForm = () => {
 					value={amount0Min}
 					onChange={(e) => setAmount0Min(e.target.value)}
 					style={{ margin: "20px 0" }}
+					disabled
 				/>
 				<TextField
 					label="Amount 1 Minimum"
@@ -166,6 +218,7 @@ const AddLiquidityForm = () => {
 					value={amount1Min}
 					onChange={(e) => setAmount1Min(e.target.value)}
 					style={{ margin: "20px 0" }}
+					disabled
 				/>
 				{error && <Typography color="error">{error}</Typography>}
 				<Button
@@ -183,6 +236,7 @@ const AddLiquidityForm = () => {
 					<div>Price: {price}</div>
 					<div>Error: {isError ? "true" : "false"}</div>
 					<div>Loading: {isLoading ? "true" : "false"}</div>
+
 					<button onClick={onToggleBalance}>Toggle Balance Display</button>
 					<div>Displaying balance in {isEthBalance ? "ETH" : "Token"}</div>
 				</div>

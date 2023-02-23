@@ -58,7 +58,6 @@ interface SetupCardProps {
 
 const SetupCard: React.FC<SetupCardProps> = ({ account, web3, farmingContractAddress, children }) => {
   const { tempSlice } = useAppStore();
-  const [userData, setUserData] = useState(null);
   const classes = useStyles();
   const router = useRouter();
   const contractName = "FarmMainRegularMinStakeABI";
@@ -86,7 +85,6 @@ const SetupCard: React.FC<SetupCardProps> = ({ account, web3, farmingContractAdd
     async function fetchData() {
       try {
         const result = await execute(myQuery, { address: tempSlice.address });
-        console.log("result", result);
         console.log("result data", result.data);
       } catch (error) {
         console.error(error);
