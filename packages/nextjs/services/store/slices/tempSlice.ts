@@ -14,17 +14,22 @@ export const defaultExampleStuff = (): TExampleStuff => {
 
 export type TempSlice = {
   tempState: TExampleStuff;
+  address: string;
   setTempState: (newTempState: TExampleStuff) => void;
-  /**
-   * add more data here for this slice
-   */
+  setAddress: (newAddress: string) => void;
 };
 
 export const createTempSlice: TAppSliceCreator<TempSlice> = set => ({
   tempState: defaultExampleStuff(),
+  address: "",
   setTempState: (newValue: TExampleStuff): void =>
     set((state): TAppStore => {
       state.tempSlice.tempState = newValue;
+      return state;
+    }),
+  setAddress: (newAddress: string): void =>
+    set((state): TAppStore => {
+      state.tempSlice.address = newAddress;
       return state;
     }),
 });

@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { execute } from "../../.graphclient";
+import { gql } from "graphql-tag";
+
 import {
   Card,
   CardHeader,
@@ -16,6 +19,7 @@ import {
 import { useRouter } from "next/router";
 import { useScaffoldContractRead } from "~~/hooks/scaffold-eth";
 import AddLiquidityForm from "~~/components/AddLiquidityForm";
+import { useAppStore } from "~~/services/store/store";
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -53,6 +57,8 @@ interface SetupCardProps {
 }
 
 const SetupCard: React.FC<SetupCardProps> = ({ account, web3, farmingContractAddress, children }) => {
+  const { tempSlice } = useAppStore();
+  const [userData, setUserData] = useState(null);
   const classes = useStyles();
   const router = useRouter();
   const contractName = "FarmMainRegularMinStakeABI";
@@ -64,6 +70,30 @@ const SetupCard: React.FC<SetupCardProps> = ({ account, web3, farmingContractAdd
     data = contract.data as any[];
     data = data[0];
   }
+
+  const myQuery = gql`
+    query ExampleQuery($address: ID!) {
+      user(id: $address) {
+        id
+        positions(first: 10) {
+          id
+        }
+      }
+    }
+  `;
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const result = await execute(myQuery, { address: tempSlice.address });
+        console.log("result", result);
+        console.log("result data", result.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchData();
+  }, [tempSlice.address]);
 
   const variableNames = {
     startBlock: "Start Block",

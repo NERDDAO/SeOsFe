@@ -26,10 +26,12 @@
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {
+    "@graphprotocol/client-cli": "^2.2.18",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3"
   },
   "dependencies": {
-    "bignumber.js": "^9.1.1"
+    "bignumber.js": "^9.1.1",
+    "graphql": "^16.6.0"
   }
 }
