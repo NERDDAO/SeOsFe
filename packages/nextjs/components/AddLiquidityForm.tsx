@@ -18,6 +18,7 @@ const AddLiquidityForm = () => {
 	const [amount0Min, setAmount0Min] = useState("");
 	const [amount1Min, setAmount1Min] = useState("");
 	const [percentageSetting, setPercentageSetting] = useState(";"); // default to 1%
+	const [lastUpdatedField, setLastUpdatedField] = useState("");
 
 	const [error, setError] = useState("");
 
@@ -34,8 +35,22 @@ const AddLiquidityForm = () => {
 
 	const provider = useProvider();
 
-	//This part is what lets us update the front end numbers for the farm.
-	//TODO: make this but for the other tuple data.
+	const handleAmount0Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setAmount0(e.target.value);
+		setLastUpdatedField("amount0");
+		if (price && !isNaN(parseFloat(e.target.value))) {
+			setAmount1((parseFloat(e.target.value) / price).toString());
+		}
+	};
+
+	const handleAmount1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setAmount1(e.target.value);
+		setLastUpdatedField("amount1");
+		if (price && !isNaN(parseFloat(e.target.value))) {
+			setAmount0((parseFloat(e.target.value) * price).toString());
+		}
+	};
+
 	useEffect(() => {
 		async function fetchData() {
 			try {
@@ -51,19 +66,36 @@ const AddLiquidityForm = () => {
 				const amount0Value = new BigNumber(amount0);
 				const amount1Value = new BigNumber(amount1);
 
-				if (amount0Value.isGreaterThan(0) && price) {
-					const correspondingAmount1 = amount0Value.dividedBy(price);
-					setAmount1(correspondingAmount1.toString());
-				} else if (amount1Value.isGreaterThan(0) && price) {
-					const correspondingAmount0 = amount1Value.multipliedBy(price);
-					setAmount0(correspondingAmount0.toString());
+				if (lastUpdatedField === "amount0") {
+					if (amount0Value.isGreaterThan(0) && price) {
+						const correspondingAmount1 = amount0Value.dividedBy(price);
+						setAmount1(correspondingAmount1.toString());
+					} else {
+						setAmount1("");
+					}
+				} else if (lastUpdatedField === "amount1") {
+					if (amount1Value.isGreaterThan(0) && price) {
+						const correspondingAmount0 = amount1Value.multipliedBy(price);
+						setAmount0(correspondingAmount0.toString());
+					} else {
+						setAmount0("");
+					}
 				}
 			} catch (e) {
 				console.error(e);
 			}
 		}
 		fetchData();
-	}, [amount0, amount1]);
+	}, [
+		amount0,
+		amount1,
+		lastUpdatedField,
+		price,
+		inputTokenAddress,
+		outputTokenAddress,
+		inputTokenDecimals,
+		outputTokenDecimals,
+	]);
 
 	const { isLoading, writeAsync } = useScaffoldContractWrite(
 		contractName,
@@ -137,23 +169,15 @@ const AddLiquidityForm = () => {
 				Add Liquidity
 			</Typography>
 			<form onSubmit={writeAsync}>
-				<div> tempSlice.pid: {tempSlice.pid} </div>
-				<TextField
-					label="Setup Index"
-					variant="outlined"
-					type="number"
-					value={setupIndex}
-					onChange={(e) => setSetupIndex(e.target.value)}
-					style={{ margin: "20px 0" }}
-				/>
+				<div> Setup Index: {tempSlice.pid} </div>
+				<div> Position ID: {tempSlice.pid} </div>
+
 				<TextField
 					label="Amount 0"
 					variant="outlined"
 					type="number"
 					value={amount0}
-					onChange={(e) => {
-						setAmount0(e.target.value);
-					}}
+					onChange={handleAmount0Change}
 					style={{ margin: "20px 0" }}
 				/>
 				<TextField
@@ -161,9 +185,7 @@ const AddLiquidityForm = () => {
 					variant="outlined"
 					type="number"
 					value={amount1}
-					onChange={(e) => {
-						setAmount1(e.target.value);
-					}}
+					onChange={handleAmount1Change}
 					style={{ margin: "20px 0" }}
 				/>
 				<TextField
