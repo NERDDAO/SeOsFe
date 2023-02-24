@@ -118,11 +118,11 @@ const AddLiquidityForm = () => {
 		[
 			{
 				name: "positionId",
-				type: "bytes32",
+				type: "uint256",
 				value: positionId,
 			},
 			{
-				name: "setupData",
+				name: "request",
 				type: "tuple",
 				components: [
 					{
@@ -183,7 +183,7 @@ const AddLiquidityForm = () => {
 			<Typography variant="h6" style={{ marginTop: "20px" }}>
 				Add Liquidity
 			</Typography>
-			<form onSubmit={writeAsync}>
+			<form>
 				<div> Setup Index: {tempSlice.pid} </div>
 				<div> Position ID: {positionId} </div>
 				<TextField
@@ -258,11 +258,12 @@ const AddLiquidityForm = () => {
 				/>
 				{error && <Typography color="error">{error}</Typography>}
 				<Button
-					type="submit"
+					type="button"
 					variant="contained"
 					color="primary"
 					disabled={isLoading}
 					style={{ marginTop: "20px" }}
+					onClick={writeAsync}
 				>
 					Add Liquidity
 				</Button>
