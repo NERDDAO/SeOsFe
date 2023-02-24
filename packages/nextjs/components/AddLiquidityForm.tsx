@@ -7,11 +7,10 @@ import { useAccount, useProvider } from "wagmi";
 import { Contract } from "ethers";
 import { useAccountBalance } from "~~/hooks/scaffold-eth/useAccountBalance";
 import { useAppStore } from "~~/services/store/store";
+import { UserPositions } from "~~/services/store/slices/querySlice";
 
 const AddLiquidityForm = () => {
 	const { tempSlice } = useAppStore();
-	const [positionId, setPositionId] = useState("");
-	const [setupIndex, setSetupIndex] = useState("");
 	const [amount0, setAmount0] = useState("");
 	const [amount1, setAmount1] = useState("");
 	const [positionOwner, setPositionOwner] = useState("");
@@ -35,6 +34,21 @@ const AddLiquidityForm = () => {
 
 	const provider = useProvider();
 
+	const { executeQuery } = useAppStore((state) => state.querySlice);
+	const [userPositions, setUserPositions] = useState<Array<UserPositions>>([]);
+
+	const handleExecuteQuery = async (address: string) => {
+		const result = await executeQuery(address);
+		setUserPositions(result.user?.positions || []);
+	};
+
+	useEffect(() => {
+		if (account?.address) {
+			handleExecuteQuery(account?.address);
+			console.log("positions", userPositions);
+		}
+	}, [account?.address]);
+
 	const handleAmount0Change = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setAmount0(e.target.value);
 		setLastUpdatedField("amount0");
@@ -50,7 +64,7 @@ const AddLiquidityForm = () => {
 			setAmount0((parseFloat(e.target.value) * price).toString());
 		}
 	};
-
+	// this could be a component
 	useEffect(() => {
 		async function fetchData() {
 			try {
@@ -96,6 +110,7 @@ const AddLiquidityForm = () => {
 		inputTokenDecimals,
 		outputTokenDecimals,
 	]);
+	const positionId = userPositions?.length > 0 ? userPositions[0].id : "";
 
 	const { isLoading, writeAsync } = useScaffoldContractWrite(
 		contractName,
@@ -170,8 +185,7 @@ const AddLiquidityForm = () => {
 			</Typography>
 			<form onSubmit={writeAsync}>
 				<div> Setup Index: {tempSlice.pid} </div>
-				<div> Position ID: {tempSlice.pid} </div>
-
+				<div> Position ID: {positionId} </div>
 				<TextField
 					label="Amount 0"
 					variant="outlined"

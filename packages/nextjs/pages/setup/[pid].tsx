@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { execute } from "../../.graphclient";
-import { gql } from "graphql-tag";
+import { useAccount } from "wagmi";
 
 import {
   Card,
@@ -50,13 +49,14 @@ const useStyles = makeStyles(theme => ({
 }));
 
 interface SetupCardProps {
-  account: string;
   web3: any;
   farmingContractAddress: string;
   children?: React.ReactNode;
 }
 
-const SetupCard: React.FC<SetupCardProps> = ({ account, web3, farmingContractAddress, children }) => {
+const SetupCard: React.FC<SetupCardProps> = ({ web3, farmingContractAddress, children }) => {
+  const { address, isConnected } = useAccount();
+  const account = address;
   const { tempSlice } = useAppStore();
   const classes = useStyles();
   const router = useRouter();
@@ -69,29 +69,6 @@ const SetupCard: React.FC<SetupCardProps> = ({ account, web3, farmingContractAdd
     data = contract.data as any[];
     data = data[0];
   }
-
-  const myQuery = gql`
-    query ExampleQuery($address: ID!) {
-      user(id: $address) {
-        id
-        positions(first: 10) {
-          id
-        }
-      }
-    }
-  `;
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const result = await execute(myQuery, { address: tempSlice.address });
-        console.log("result data", result.data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    fetchData();
-  }, [tempSlice.address]);
 
   const variableNames = {
     startBlock: "Start Block",
