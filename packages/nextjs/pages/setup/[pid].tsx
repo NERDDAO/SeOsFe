@@ -76,12 +76,8 @@ const SetupCard: React.FC<SetupCardProps> = ({ web3, farmingContractAddress, chi
     totalSupply: "Total Supply",
   };
 
-  const handleClick = () => {
-    console.log("I'm Clicked", data);
-  };
-
   return (
-    <Card className={classes.card} onClick={handleClick}>
+    <Card className={classes.card}>
       <CardHeader className={classes.header} title="Data" />
       <CardContent className={classes.content}>
         {data && (

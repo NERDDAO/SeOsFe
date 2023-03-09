@@ -34,20 +34,26 @@ const AddLiquidityForm = () => {
 
 	const provider = useProvider();
 
+	// Uses Graph Protocol to fetch existing indexed positions
+
 	const { executeQuery } = useAppStore((state) => state.querySlice);
 	const [userPositions, setUserPositions] = useState<Array<UserPositions>>([]);
 
 	const handleExecuteQuery = async (address: string) => {
 		const result = await executeQuery(address);
+		console.log("result:", result);
 		setUserPositions(result.user?.positions || []);
+		console.log("userPositions:", userPositions);
 	};
 
 	useEffect(() => {
+		console.log("handleExecuteQuery running with address:", account?.address);
 		if (account?.address) {
 			handleExecuteQuery(account?.address);
-			console.log("positions", userPositions);
 		}
 	}, [account?.address]);
+
+	// Handles Inputs for tokens: Token A is derived from Token B
 
 	const handleAmount0Change = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setAmount0(e.target.value);
@@ -64,7 +70,7 @@ const AddLiquidityForm = () => {
 			setAmount0((parseFloat(e.target.value) * price).toString());
 		}
 	};
-	// this could be a component
+	// Get prices from uniswap
 	useEffect(() => {
 		async function fetchData() {
 			try {
@@ -110,51 +116,12 @@ const AddLiquidityForm = () => {
 		inputTokenDecimals,
 		outputTokenDecimals,
 	]);
-	const positionId = userPositions?.length > 0 ? userPositions[0].id : "";
 
-	const { isLoading, writeAsync } = useScaffoldContractWrite(
-		contractName,
-		functionName,
-		[
-			{
-				name: "positionId",
-				type: "uint256",
-				value: positionId,
-			},
-			{
-				name: "request",
-				type: "tuple",
-				components: [
-					{
-						name: "setupIndex",
-						type: "uint256",
-						value: new BigNumber(tempSlice.pid),
-					},
-					{
-						name: "amount0",
-						type: "uint256",
-						value: new BigNumber(amount0),
-					},
-					{
-						name: "amount1",
-						type: "uint256",
-						value: new BigNumber(amount1),
-					},
-					{ name: "positionOwner", type: "address", value: positionOwner },
-					{
-						name: "amount0Min",
-						type: "uint256",
-						value: new BigNumber(amount0Min),
-					},
-					{
-						name: "amount1Min",
-						type: "uint256",
-						value: new BigNumber(amount1Min),
-					},
-				],
-			},
-		]
-	);
+	// Checks graph query result if user has a position else returns a string this happens when user has no position
+
+	const positionId = userPositions?.length > 0 ? userPositions[0].id : null;
+
+	// Scaffold Contract Write takes contract and function + args (Touple) and should handle the transaction
 
 	useEffect(() => {
 		const calculateMinAmounts = () => {
@@ -177,6 +144,98 @@ const AddLiquidityForm = () => {
 
 		calculateMinAmounts();
 	}, [amount0, amount1, percentageSetting]);
+
+	const functionNameToCall = positionId ? "addLiquidity" : "openPosition";
+	console.log("functionNameToCall:", functionNameToCall);
+
+	const args = positionId
+		? [
+				{
+					name: "positionId",
+					type: "uint256",
+					value: positionId,
+				},
+				{
+					name: "request",
+					type: "tuple",
+					components: [
+						{
+							name: "setupIndex",
+							type: "uint256",
+							value: new BigNumber(tempSlice.pid),
+						},
+						{
+							name: "amount0",
+							type: "uint256",
+							value: new BigNumber(amount0),
+						},
+						{
+							name: "amount1",
+							type: "uint256",
+							value: new BigNumber(amount1),
+						},
+						{ name: "positionOwner", type: "address", value: positionOwner },
+						{
+							name: "amount0Min",
+							type: "uint256",
+							value: new BigNumber(amount0Min),
+						},
+						{
+							name: "amount1Min",
+							type: "uint256",
+							value: new BigNumber(amount1Min),
+						},
+					],
+				},
+		  ]
+		: [
+				{
+					name: "request",
+					type: "tuple",
+					components: [
+						{
+							name: "setupIndex",
+							type: "uint256",
+							value: new BigNumber(tempSlice.pid),
+						},
+						{
+							name: "amount0",
+							type: "uint256",
+							value: new BigNumber(amount0),
+						},
+						{
+							name: "amount1",
+							type: "uint256",
+							value: new BigNumber(amount1),
+						},
+						{ name: "positionOwner", type: "address", value: positionOwner },
+						{
+							name: "amount0Min",
+							type: "uint256",
+							value: new BigNumber(amount0Min),
+						},
+						{
+							name: "amount1Min",
+							type: "uint256",
+							value: new BigNumber(amount1Min),
+						},
+					],
+				},
+		  ];
+	console.log("args:", args);
+
+	const { isLoading, writeAsync } = useScaffoldContractWrite(
+		contractName,
+		functionNameToCall,
+		args,
+		"0"
+	);
+
+	const handleClick = async () => {
+		if (!isLoading) {
+			await writeAsync();
+		}
+	};
 
 	return (
 		<Grid container direction="column" alignItems="center">
@@ -261,9 +320,10 @@ const AddLiquidityForm = () => {
 					type="button"
 					variant="contained"
 					color="primary"
-					disabled={isLoading}
 					style={{ marginTop: "20px" }}
-					onClick={writeAsync}
+					onClick={() => {
+						handleClick();
+					}}
 				>
 					Add Liquidity
 				</Button>
@@ -272,7 +332,6 @@ const AddLiquidityForm = () => {
 					<div>Balance: {balance}</div>
 					<div>Price: {price}</div>
 					<div>Error: {isError ? "true" : "false"}</div>
-					<div>Loading: {isLoading ? "true" : "false"}</div>
 
 					<button onClick={onToggleBalance}>Toggle Balance Display</button>
 					<div>Displaying balance in {isEthBalance ? "ETH" : "Token"}</div>

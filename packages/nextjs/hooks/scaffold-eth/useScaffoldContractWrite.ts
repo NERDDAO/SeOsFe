@@ -14,6 +14,8 @@ import { useDeployedContractInfo } from "./useDeployedContractInfo";
  */
 export const useScaffoldContractWrite = (contractName: string, functionName: string, args?: any[], value?: string) => {
   const deployedContractData = useDeployedContractInfo({ contractName });
+  console.log("deployedContractData", deployedContractData);
+
   const writeTx = useTransactor();
 
   const { config } = usePrepareContractWrite({
@@ -25,18 +27,22 @@ export const useScaffoldContractWrite = (contractName: string, functionName: str
       value: value ? utils.parseEther(value) : undefined,
     },
   });
-
+  console.log("config", config);
   const wagmiContractWrite = useContractWrite(config);
+  console.log("wagmiContractWrite", wagmiContractWrite);
 
   const sendContractWriteTx = async () => {
+    console.log("wagmiContractWrite.writeAsync", wagmiContractWrite.writeAsync);
     if (!deployedContractData) {
-      toast.error("Target Contract is not deployed, did you forgot to run `yarn deploy`?");
+      toast.error("Target Contract is not deployed, did you forget to run `yarn deploy`?");
       return;
     }
 
     if (wagmiContractWrite.writeAsync && writeTx) {
       try {
-        await writeTx(wagmiContractWrite.writeAsync());
+        const tx = wagmiContractWrite.writeAsync();
+        console.log("Transaction arguments:", tx); // Add this line to display the transaction arguments
+        await writeTx(tx);
       } catch (e: any) {
         const message = getParsedEthersError(e);
         toast.error(message);
